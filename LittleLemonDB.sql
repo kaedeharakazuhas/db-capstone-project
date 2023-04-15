@@ -26,7 +26,10 @@ CREATE TABLE `Bookings` (
   `BookingID` int NOT NULL,
   `Date` datetime NOT NULL,
   `TableNumber` int NOT NULL,
-  PRIMARY KEY (`BookingID`)
+  `CustomerID` int NOT NULL,
+  PRIMARY KEY (`BookingID`),
+  KEY `customer_fk_idx` (`CustomerID`),
+  CONSTRAINT `customerids_fk` FOREIGN KEY (`CustomerID`) REFERENCES `CustomerDetails` (`CustomerID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -36,6 +39,7 @@ CREATE TABLE `Bookings` (
 
 LOCK TABLES `Bookings` WRITE;
 /*!40000 ALTER TABLE `Bookings` DISABLE KEYS */;
+INSERT INTO `Bookings` VALUES (1,'2023-01-02 12:00:00',1,1),(2,'2023-01-02 13:00:00',2,2),(3,'2023-01-02 14:00:00',3,3),(4,'2023-01-02 15:00:00',4,4),(5,'2023-01-02 16:00:00',5,5),(6,'2023-01-02 17:00:00',6,6),(7,'2023-01-02 18:00:00',7,7),(8,'2023-01-02 19:00:00',8,8),(9,'2023-01-02 20:00:00',9,9),(10,'2023-01-02 21:00:00',10,10);
 /*!40000 ALTER TABLE `Bookings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -50,7 +54,6 @@ CREATE TABLE `CustomerDetails` (
   `CustomerID` int NOT NULL,
   `CustomerName` varchar(255) NOT NULL,
   `ContactDetails` int NOT NULL,
-  `CustomerDetailscol` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`CustomerID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -61,6 +64,7 @@ CREATE TABLE `CustomerDetails` (
 
 LOCK TABLES `CustomerDetails` WRITE;
 /*!40000 ALTER TABLE `CustomerDetails` DISABLE KEYS */;
+INSERT INTO `CustomerDetails` VALUES (1,'Amy White',1),(2,'Joakim Iversen',2),(3,'Vanessa McCarthy',3),(4,'Marcos Romero',4),(5,'Hiroki Yamane',5),(6,'Anna Iversen',6),(7,'Daisy Lee',7),(8,'Logan Smith',8),(9,'Jonathan Conner',9),(10,'Jay Brown',0);
 /*!40000 ALTER TABLE `CustomerDetails` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -74,11 +78,10 @@ DROP TABLE IF EXISTS `Menu`;
 CREATE TABLE `Menu` (
   `MenuID` int NOT NULL,
   `Cuisine` varchar(255) NOT NULL,
-  `Starters` varchar(255) NOT NULL,
-  `Courses` varchar(255) NOT NULL,
-  `Drinks` varchar(255) NOT NULL,
-  `Desserts` varchar(255) NOT NULL,
-  PRIMARY KEY (`MenuID`)
+  `MenuName` varchar(255) NOT NULL,
+  `MenuItemsID` int NOT NULL,
+  PRIMARY KEY (`MenuID`),
+  KEY `menu_item_id_fk_idx` (`MenuItemsID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -88,6 +91,7 @@ CREATE TABLE `Menu` (
 
 LOCK TABLES `Menu` WRITE;
 /*!40000 ALTER TABLE `Menu` DISABLE KEYS */;
+INSERT INTO `Menu` VALUES (1,'Greek','MenuOne',1),(2,'Greek','MenuTwo',2),(3,'Italian','MenuThree',3),(4,'Italian','MenuFour',4),(5,'Turkish','MenuFive',5);
 /*!40000 ALTER TABLE `Menu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -114,6 +118,7 @@ CREATE TABLE `MenuItems` (
 
 LOCK TABLES `MenuItems` WRITE;
 /*!40000 ALTER TABLE `MenuItems` DISABLE KEYS */;
+INSERT INTO `MenuItems` VALUES (1,'Grilled Meat','Olives','Water','Cake'),(2,'Fresh Fish','Flatbread','Cider','Mousse'),(3,'Pizza','Salas','Soda','Cupcake'),(4,'Pasta','Fruit','Tea','Fudge'),(5,'Meatballs','Hummus','Wine','Ice Cream');
 /*!40000 ALTER TABLE `MenuItems` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,6 +143,7 @@ CREATE TABLE `OrderDeliveryStatus` (
 
 LOCK TABLES `OrderDeliveryStatus` WRITE;
 /*!40000 ALTER TABLE `OrderDeliveryStatus` DISABLE KEYS */;
+INSERT INTO `OrderDeliveryStatus` VALUES (1,'2023-01-02 13:00:00','Delivered'),(2,'2023-01-02 14:00:00','Delivered'),(3,'2023-01-02 15:00:00','Delivered'),(4,'2023-01-02 16:00:00','Out for Delivery'),(5,'2023-01-02 17:00:00','Out for Delivery'),(6,'2023-01-02 18:00:00','Out for Delivery'),(7,'2023-01-02 19:00:00','Order Placed'),(8,'2023-01-02 20:00:00','Order Placed'),(9,'2023-01-02 21:00:00','Order Placed'),(10,'2023-01-02 22:00:00','Order Placed');
 /*!40000 ALTER TABLE `OrderDeliveryStatus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -179,6 +185,20 @@ LOCK TABLES `Orders` WRITE;
 UNLOCK TABLES;
 
 --
+-- Temporary view structure for view `ordersview`
+--
+
+DROP TABLE IF EXISTS `ordersview`;
+/*!50001 DROP VIEW IF EXISTS `ordersview`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `ordersview` AS SELECT 
+ 1 AS `OrderID`,
+ 1 AS `Quantity`,
+ 1 AS `TotalCost`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `StaffInformation`
 --
 
@@ -188,7 +208,7 @@ DROP TABLE IF EXISTS `StaffInformation`;
 CREATE TABLE `StaffInformation` (
   `StaffID` int NOT NULL,
   `Role` varchar(45) NOT NULL,
-  `Salary` decimal(6,2) NOT NULL,
+  `Salary` decimal(8,2) NOT NULL,
   `CustomerID` int NOT NULL,
   PRIMARY KEY (`StaffID`),
   KEY `customer_id_fk_idx` (`CustomerID`),
@@ -202,8 +222,27 @@ CREATE TABLE `StaffInformation` (
 
 LOCK TABLES `StaffInformation` WRITE;
 /*!40000 ALTER TABLE `StaffInformation` DISABLE KEYS */;
+INSERT INTO `StaffInformation` VALUES (1,'Manager',100000.00,1),(2,'Assistant Manager',90000.00,2),(3,'Supervisor',80000.00,3),(4,'Head Chef',75000.00,4),(5,'Assistant Chef',70000.00,5),(6,'Assistant Chef',70000.00,6),(7,'Head Waiter',65000.00,7),(8,'Waiter',60000.00,8),(9,'Receptionist',55000.00,9),(10,'Dishwasher',55000.00,10);
 /*!40000 ALTER TABLE `StaffInformation` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Final view structure for view `ordersview`
+--
+
+/*!50001 DROP VIEW IF EXISTS `ordersview`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`admin5`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `ordersview` AS select `orders`.`OrderID` AS `OrderID`,`orders`.`Quantity` AS `Quantity`,`orders`.`TotalCost` AS `TotalCost` from `orders` where (`orders`.`Quantity` > 2) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -214,4 +253,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-04-13 16:34:34
+-- Dump completed on 2023-04-15 13:37:16
